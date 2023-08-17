@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import './App.css'
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   
 
   return (
     <>
-      <div id="root">
+      
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-4">
@@ -175,7 +176,7 @@ function App() {
       </div>
     </div>
   </div>
-</div>
+
     </>
   )
 }
