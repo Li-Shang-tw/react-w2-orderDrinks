@@ -1,70 +1,115 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import './App.css'
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import data from './data'
+
+//import components
+import Menu from "./component/menu"
+import Cart from './component/cart';
+import Order from './component/order'
 
 function App() {
-  
+  //state
+  const [meunDrinks,setMeunDrinks] = useState(data);
+  const [cartDrinks,setCartDrinks] = useState([]);
+  const [orderDrinks,setOrderDrinks] = useState([]);
+  const [bigTotal,setBigTotal] =  useState(0);
 
+   //事件function
+   function updateCart(id){
+   
+    let isInCart = false;
+    meunDrinks.filter(drink=>{
+      
+      if(drink.id === id){
+        setCartDrinks((pre)=>{
+         //檢查品項是否已在購物車
+          pre.forEach((item)=>{
+            if(item.id === id){
+              isInCart =true;             
+            }
+          })  
+
+         //如果不再購物車，才新增品項    
+          if(!isInCart){  
+            //將drink物件加上qty的屬性，初始值為1 
+            let drinkInCart = {...drink} ;  
+            drinkInCart .qty = 1;            
+            let newCart = [...pre,drinkInCart];
+            return newCart
+          }else{
+            //對已存在的drink的qry+1
+          const updatedCartDrink =  pre.map((item)=>{
+            if(item.id === id){
+              
+              item.qty +=1;
+              return item
+            }
+            else{
+              return item
+            }
+          })
+            return updatedCartDrink
+          }
+
+         
+         
+        })
+      }
+    })
+   
+   }
+ 
+   function updateCartDrinkQty(qty,id){
+    setCartDrinks(pre=>{
+     const newCartQty = pre.map(item=>{
+      if(item.id === id){
+        item.qty = qty;
+        return item
+      }else{
+        return item
+      }
+     })
+     return newCartQty
+    })
+   }
+   function updateOrder(){
+    setOrderDrinks(cartDrinks);
+    //清空購物車
+    setCartDrinks([]);
+   }
+  
+   useEffect(()=>{
+    let count = 0;
+    cartDrinks.forEach((item)=>{
+      count +=  item.price*item.qty;
+    })
+    
+    setBigTotal(count);
+   },
+   [cartDrinks])
+   
+     
   return (
     <>
-      
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="list-group">
-          <a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">珍珠奶茶</h5>
-              <small>$50</small>
-            </div>
-            <p class="mb-1">香濃奶茶搭配QQ珍珠</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">冬瓜檸檬</h5>
-              <small>$45</small>
-            </div>
-            <p class="mb-1">清新冬瓜配上新鮮檸檬</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">翡翠檸檬</h5>
-              <small>$55</small>
-            </div>
-            <p class="mb-1">綠茶與檸檬的完美結合</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">四季春茶</h5>
-              <small>$45</small>
-            </div>
-            <p class="mb-1">香醇四季春茶，回甘無比</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">阿薩姆奶茶</h5>
-              <small>$50</small>
-            </div>
-            <p class="mb-1">阿薩姆紅茶搭配香醇鮮奶</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">檸檬冰茶</h5>
-              <small>$45</small>
-            </div>
-            <p class="mb-1">檸檬與冰茶的清新組合</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">芒果綠茶</h5>
-              <small>$55</small>
-            </div>
-            <p class="mb-1">芒果與綠茶的獨特風味</p></a
-          ><a href="#" class="list-group-item list-group-item-action"
-            ><div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">抹茶拿鐵</h5>
-              <small>$60</small>
-            </div>
-            <p class="mb-1">抹茶與鮮奶的絕配</p></a
-          >
+       <div className="container mt-5">
+    <div className="row">
+      <div className="col-md-4">
+        <div className="list-group">
+       { meunDrinks.map(drink => 
+       <Menu
+        drinkId={drink.id}
+        name = {drink.name}
+       price = {drink.price}
+       description = {drink.description}
+       updateCart ={updateCart}
+        />)}
+          
+         
         </div>
       </div>
-      <div class="col-md-8">
-        <table class="table">
+      <div className="col-md-8">
+        <table className="table">
           <thead>
             <tr>
               <th scope="col" width="50">操作</th>
@@ -76,71 +121,41 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><button type="button" class="btn btn-sm">x</button></td>
-              <td>四季春茶</td>
-              <td><small>香醇四季春茶，回甘無比</small></td>
-              <td>
-                <select class="form-select">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                </select>
-              </td>
-              <td>45</td>
-              <td>45</td>
-            </tr>
-            <tr>
-              <td><button type="button" class="btn btn-sm">x</button></td>
-              <td>翡翠檸檬</td>
-              <td><small>綠茶與檸檬的完美結合</small></td>
-              <td>
-                <select class="form-select">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                </select>
-              </td>
-              <td>55</td>
-              <td>55</td>
-            </tr>
+          { cartDrinks.map(drink => 
+       <Cart 
+       id ={drink.id}
+       name = {drink.name}
+       price = {drink.price}
+       qty =  {drink.qty}
+       description = {drink.description}
+       updateCartDrinkQty ={updateCartDrinkQty}
+      
+        />)}
+          
+           
           </tbody>
         </table>
-        <div class="text-end mb-3">
-          <h5>總計: <span>$100</span></h5>
+        <div className="text-end mb-3">
+          <h5>總計: <span>{bigTotal}</span></h5>
         </div>
         <textarea
-          class="form-control mb-3"
+          className="form-control mb-3"
           rows="3"
           placeholder="備註"
         ></textarea>
-        <div class="text-end">
-          <button class="btn btn-primary">送出</button>
+        <div className="text-end">
+          <button className="btn btn-primary" onClick={updateOrder}>送出</button>
         </div>
       </div>
     </div>
     <hr />
-    <div class="row justify-content-center">
-      <div class="col-8">
-        <div class="card">
-          <div class="card-body">
-            <div class="card-title">
+    <div className="row justify-content-center">
+      <div className="col-8">
+        <div className="card">
+          <div className="card-body">
+            <div className="card-title">
               <h5>訂單</h5>
-              <table class="table">
+              <table className="table">
                 <thead>
                   <tr>
                     <th scope="col">品項</th>
@@ -149,25 +164,19 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>翡翠檸檬</td>
-                    <td>7</td>
-                    <td>385</td>
-                  </tr>
-                  <tr>
-                    <td>冬瓜檸檬</td>
-                    <td>7</td>
-                    <td>315</td>
-                  </tr>
-                  <tr>
-                    <td>冬瓜檸檬</td>
-                    <td>4</td>
-                    <td>180</td>
-                  </tr>
+                {orderDrinks.map(order=>
+                <Order
+                id= {order.id}
+                name={order.name}
+                qty={order.qty}
+                price= {order.price}
+                />) }
+                 
+                
                 </tbody>
               </table>
-              <div class="text-end">備註: <span>都不要香菜</span></div>
-              <div class="text-end">
+              <div className="text-end">備註: <span>都不要香菜</span></div>
+              <div className="text-end">
                 <h5>總計: <span>$145</span></h5>
               </div>
             </div>
@@ -176,7 +185,6 @@ function App() {
       </div>
     </div>
   </div>
-
     </>
   )
 }
