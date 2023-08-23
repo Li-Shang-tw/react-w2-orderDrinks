@@ -4,7 +4,7 @@ import { useState,useEffect } from 'react'
 function Order(props){
     
     const [total,setTotal] = useState(0)
-    const {id,name,price,description,qty ,updateCartDrinkQty} = props;
+    const {id,name,price,description,qty ,updateCartDrinkQty,deleteDrinkInCart} = props;
     
     //function
     function handleQtyChange(e,id){
@@ -19,7 +19,7 @@ function Order(props){
     
 return(
 <tr>
-<td><button type="button" className="btn btn-sm">x</button></td>
+<td><button type="button" className="btn btn-sm" onClick={()=>{deleteDrinkInCart(id)}}>x</button></td>
 <td>{name}</td>
 <td><small>{description}</small></td>
 <td>

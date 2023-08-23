@@ -12,10 +12,17 @@ function App() {
   //state
   const [meunDrinks,setMeunDrinks] = useState(data);
   const [cartDrinks,setCartDrinks] = useState([]);
-  const [orderDrinks,setOrderDrinks] = useState([]);
+  const [orderDrinks,setOrderDrinks] = useState({
+    items:[],
+    remark:""
+  });
   const [bigTotal,setBigTotal] =  useState(0);
+  const [bigTotalOfOrder,setBigTotalOfOrder] =  useState(0);
+  const [remark,setRemark] = useState("");
 
    //事件function
+
+   //??問題:點選已加入購物車的飲料，預計數量會加1，但結果都是+2 ??????
    function updateCart(id){
    
     let isInCart = false;
@@ -74,22 +81,49 @@ function App() {
     })
    }
    function updateOrder(){
-    setOrderDrinks(cartDrinks);
+    
+    const order = {
+      items:cartDrinks,
+      remark:remark
+    }
+    setOrderDrinks(order);
     //清空購物車
     setCartDrinks([]);
+    setRemark("");
    }
-  
+   function deleteDrinkInCart(id){
+    const updateCart = cartDrinks.filter(item=>{
+      if(item.id !== id){
+        return item
+      }
+    });
+    setCartDrinks(updateCart);
+   }
+  //bigTotal for order
    useEffect(()=>{
     let count = 0;
     cartDrinks.forEach((item)=>{
       count +=  item.price*item.qty;
-    })
-    
+    })    
     setBigTotal(count);
    },
    [cartDrinks])
-   
-     
+//bigTotal for order
+   useEffect(()=>{
+    let count = 0;
+    orderDrinks.items.forEach((item)=>{
+      count +=  item.price*item.qty;
+    })    
+    setBigTotalOfOrder(count);
+   },
+   [orderDrinks])
+
+   //remark
+   function getRemark(e){
+     const textValue = e.target.value;
+     setRemark(textValue);
+   }
+        
   return (
     <>
        <div className="container mt-5">
@@ -103,7 +137,7 @@ function App() {
        price = {drink.price}
        description = {drink.description}
        updateCart ={updateCart}
-        />)}
+              />)}
           
          
         </div>
@@ -129,6 +163,7 @@ function App() {
        qty =  {drink.qty}
        description = {drink.description}
        updateCartDrinkQty ={updateCartDrinkQty}
+       deleteDrinkInCart={deleteDrinkInCart}
       
         />)}
           
@@ -142,6 +177,8 @@ function App() {
           className="form-control mb-3"
           rows="3"
           placeholder="備註"
+          onChange={getRemark}
+          value={remark}
         ></textarea>
         <div className="text-end">
           <button className="btn btn-primary" onClick={updateOrder}>送出</button>
@@ -164,7 +201,7 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                {orderDrinks.map(order=>
+                {orderDrinks.items.map(order=>
                 <Order
                 id= {order.id}
                 name={order.name}
@@ -175,9 +212,9 @@ function App() {
                 
                 </tbody>
               </table>
-              <div className="text-end">備註: <span>都不要香菜</span></div>
+              <div className="text-end">備註: <span>{orderDrinks.remark}</span></div>
               <div className="text-end">
-                <h5>總計: <span>$145</span></h5>
+                <h5>總計: <span>{bigTotalOfOrder}</span></h5>
               </div>
             </div>
           </div>
